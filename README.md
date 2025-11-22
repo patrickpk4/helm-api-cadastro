@@ -166,48 +166,6 @@ catalogo-kubernetes/
 
 ---
 
-## Deploy Passo a Passo
-
-### 1. Criar Namespaces
-```bash
-kubectl create namespace api-app
-kubectl create namespace data-base
-```
-
-### 2. Deploy do MongoDB
-```bash
-kubectl apply -f data-base/secret-mongodb.yaml
-kubectl apply -f storage/storage-class-mongodb.yaml
-kubectl apply -f data-base/mongodb.yaml
-kubectl apply -f data-base/service-mongodb.yaml
-kubectl apply -f data-base/serviceaccount-mongodb.yaml
-kubectl apply -f data-base/role-mongodb.yaml
-kubectl apply -f data-base/rolebinding-mongodb.yaml
-```
-
-### 3. Deploy da API Catálogo
-```bash
-kubectl apply -f api-app/secret-catalogo.yaml
-kubectl apply -f api-app/catalogo.yaml
-kubectl apply -f api-app/service-catalogo.yaml
-kubectl apply -f api-app/serviceaccount-catalogo.yaml
-kubectl apply -f api-app/role-catalogo.yaml
-kubectl apply -f api-app/rolebinding-catalogo.yaml
-```
-
-### 4. Configurar Auto-scaling
-```bash
-kubectl apply -f api-app/hpa-catalogo.yaml
-kubectl apply -f data-base/hpa-mongodb.yaml
-```
-
-### 5. Aplicar Network Policies
-```bash
-kubectl apply -f api-app/networkpolicy-catalogo.yaml
-kubectl apply -f data-base/networkpolicy-mongodb.yaml
-```
-
----
 
 ## Variáveis de Ambiente
 
@@ -254,10 +212,6 @@ limits:
 - Startup: `mongo --eval "db.adminCommand('ping')"`
 - Readiness: TCP socket 27017
 - Liveness: `mongo --eval "db.adminCommand('ping')"`
-
-**API**
-- Readiness: HTTP GET `/read`
-- Liveness: HTTP GET `/health`
 
 ---
 
