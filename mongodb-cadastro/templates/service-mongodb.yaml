@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mongodb-cadastro.fullname" . }}-service
+  labels:
+    {{- include "mongodb-cadastro.labels" . | nindent 4 }}
+    {{- if not .Values.namespace.enabled }}
+  namespace: {{ .Values.namespacedef }}
+    {{- else }}
+  namespace: {{ .Values.namespace.name }}
+    {{- end }}    
+spec:
+  clusterIP: {{ .Values.service.clusterIP | default "None"}}
+  selector:
+    {{- include "mongodb-cadastro.selectorLabels" . | nindent 4 }}
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.port }}
+  
