@@ -1,4 +1,4 @@
-# 📘 README – Aplicação Cadastro de Produto  
+#  README – Aplicação Cadastro de Produto  
 ## Kubernetes • Helm Chart • Ingress • RBAC • NetworkPolicy • Persistência • MongoDB • .NET
 
 Este projeto demonstra uma aplicação completa e realista rodando em **Kubernetes**, utilizando:
@@ -15,7 +15,7 @@ Este projeto demonstra uma aplicação completa e realista rodando em **Kubernet
 
 ---
 
-# 🚀 Deploy com Helm
+#  Deploy com Helm
 
 Instalar:
 
@@ -43,7 +43,7 @@ helm upgrade mongodb-produto ./chart
 
 ---
 
-# 🌐 Acesso à Aplicação via Ingress
+#  Acesso à Aplicação via Ingress
 
 A API é exposta por:
 
@@ -59,34 +59,34 @@ Se necessário, adicione ao `/etc/hosts`:
 
 ---
 
-# 🧱 Componentes Utilizados no Cluster
+#  Componentes Utilizados no Cluster
 
-## ✔️ 1. Persistência – PV / PVC / StorageClass
+##  1. Persistência – PV / PVC / StorageClass
 - MongoDB utiliza **StatefulSet**
 - Volume persistente provisionado via NFS (ou outro provisionador)
 - PVC separado por namespace  
 - Política de retenção configurada
 
-## ✔️ 2. Rede – NetworkPolicies
+##  2. Rede – NetworkPolicies
 - Controle de acesso por namespace  
 - Somente a API pode se comunicar com o MongoDB  
 - Isolamento total entre outros pods  
 - Permissão explícita para DNS interno
 
-## ✔️ 3. RBAC – ServiceAccount / Role / RoleBinding
+##  3. RBAC – ServiceAccount / Role / RoleBinding
 - Cada namespace possui seu **ServiceAccount** dedicado  
 - Roles com mínimo privilégio  
 - A API só pode ler Secrets e acessar seu namespace  
 - MongoDB só pode ler seu secret  
 - Acesso cross-namespace apenas quando necessário
 
-## ✔️ 4. Ingress & Gateway API
+##  4. Ingress & Gateway API
 - Exposição via domínio `cadastro.local`  
 - Pode ser usado Ingress NGINX, Contour, Traefik ou Gateway API  
 - Suporte a TLS opcional  
 - Helm permite ativar ou desativar via `values.yaml`
 
-## ✔️ 5. Autoescalonamento – HPA
+##  5. Autoescalonamento – HPA
 - API escala com base em CPU  
 - MongoDB possui HPA configurado com limites seguros  
 - Métricas via Metrics Server
@@ -271,16 +271,16 @@ kubectl rollout restart deployment/api-deployment -n api-app
 
 ## Boas Práticas Implementadas
 
-✅ Multi-namespace para isolamento  
-✅ RBAC com princípio do menor privilégio  
-✅ Health checks completos  
-✅ Auto-scaling horizontal  
-✅ Persistência com NFS  
-✅ Network policies para segurança  
-✅ Resource limits definidos  
-✅ Secrets management adequado  
-✅ StatefulSet para banco de dados  
-✅ Probes para resiliência  
+ Multi-namespace para isolamento  
+ RBAC com princípio do menor privilégio  
+ Health checks completos  
+ Auto-scaling horizontal  
+ Persistência com NFS  
+ Network policies para segurança  
+ Resource limits definidos  
+ Secrets management adequado  
+ StatefulSet para banco de dados  
+ Probes para resiliência  
 
 ---
 
