@@ -91,9 +91,6 @@ Se necessário, adicione ao `/etc/hosts`:
 - MongoDB possui HPA configurado com limites seguros  
 - Métricas via Metrics Server
 
----
-
-Agora segue o conteúdo original do seu README:
 
 ---
 
