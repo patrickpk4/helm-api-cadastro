@@ -91,14 +91,6 @@ Se necessário, adicione ao `/etc/hosts`:
 - MongoDB possui HPA configurado com limites seguros  
 - Métricas via Metrics Server
 
-
----
-
-
-# Kubernetes Catálogo App - MongoDB & .NET Core
-
-Uma aplicação completa de catálogo implementada em **Kubernetes** com **MongoDB** e **.NET Core**, demonstrando boas práticas de orquestração de containers, auto-escalonamento e persistência de dados.
-
 ---
 
 ## Arquitetura
