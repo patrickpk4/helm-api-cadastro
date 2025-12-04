@@ -5,11 +5,7 @@ metadata:
   name: {{ include "helm-api-cadastro.fullname" . }}-ingress
   labels: 
      {{- include "helm-api-cadastro.labels" . | nindent 5 }}
-  {{- if not .Values.namespace.enabled }}
-  namespace: {{ .Values.namespacedef }}
-  {{- else}}
-  namespace: {{ .Values.namespace.name }}
-  {{- end }}
+     {{ .Values.extralabels | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

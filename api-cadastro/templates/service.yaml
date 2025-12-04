@@ -1,14 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "helm-api-cadastro.fullname" . }}-service
+  name: {{ .Release.Name }}-service
   labels: 
      {{- include "helm-api-cadastro.labels" . | nindent 5 }}
-  {{- if not .Values.namespace.enabled }}
-  namespace: {{ .Values.namespacedef }}
-  {{- else}}
-  namespace: {{ .Values.namespace.name }}
-  {{- end }}
+     {{ .Values.extralabels | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:

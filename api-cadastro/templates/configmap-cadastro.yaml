@@ -1,15 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "helm-api-cadastro.fullname" . }}-configmap
+  name: {{ .Release.Name }}-configmap
   labels:
     {{- include "helm-api-cadastro.labels" . | nindent 4 }}
-  {{- if not .Values.namespace.enabled }}
-  namespace: {{ .Values.namespacedef }}
-  {{- else}}
-  namespace: {{ .Values.namespace.name }}
-  {{- end }}
+    {{ .Values.extralabels | nindent 4 }}
 data:
-  Mongo__host: {{ .Values.envfrom.host | quote }}
+  Mongo__host: {{ .Values.envfrom.host }}
+  Mongo__DataBase: {{ .Values.envfrom.database }}
   Mongo__port: {{ .Values.envfrom.port | quote }}
-  Mongo__DataBase: {{ .Values.envfrom.database | quote }}

@@ -2,22 +2,13 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
- name: {{ include "helm-api-cadastro.fullname" . }}role-binding
+ name: {{ .Release.Name }}-role-binding
  labels: 
      {{- include "helm-api-cadastro.labels" . | nindent 5 }}
-  {{- if not .Values.namespace.enabled }}
- namespace: {{ .Values.namespacedef }}
-  {{- else }}
- namespace: {{ .Values.namespace.name }}
-  {{- end }}
+     {{ .Values.extralabels | nindent 4 }}
 subjects:
  - kind: ServiceAccount
    name: {{ include "helm-api-cadastro.serviceAccountName" . }}
-    {{- if not .Values.namespace.enabled }}
-   namespace: {{ .Values.namespacedef }}
-    {{- else }}
-   namespace: {{ .Values.namespace.name }}
-    {{- end }}
 roleRef:
    kind: Role 
    name: {{ include "helm-api-cadastro.fullname" . }}-role

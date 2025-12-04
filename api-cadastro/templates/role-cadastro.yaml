@@ -2,14 +2,10 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role 
 metadata:
- name: {{ include "helm-api-cadastro.fullname" . }}-role
+ name: {{ .Release.Name }}-role
  labels: 
      {{- include "helm-api-cadastro.labels" . | nindent 5 }}
-  {{- if not .Values.namespace.enabled }}
- namespace: {{ .Values.namespacedef }}
-  {{- else }}
- namespace: {{ .Values.namespace.name }}
-  {{- end }}
+     {{ .Values.extralabels | nindent 4 }}
 rules:
  {{- range .Values.role.rules }}
   - apiGroups: {{ .apiGroups | toYaml | nindent 4 }}

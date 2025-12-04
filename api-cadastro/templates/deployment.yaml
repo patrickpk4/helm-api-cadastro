@@ -1,14 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "helm-api-cadastro.fullname" . }}-deployment
+  name: {{ .Release.Name }}-deployment
   labels: 
      {{- include "helm-api-cadastro.labels" . | nindent 5 }}
-  {{- if not .Values.namespace.enabled }}
-  namespace: {{ .Values.namespacedef }}
-  {{- else}}
-  namespace: {{ .Values.namespace.name }}
-  {{- end }}
+     {{ .Values.extralabels | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -16,6 +12,7 @@ spec:
   selector:
     matchLabels:
       {{- include "helm-api-cadastro.selectorLabels" . | nindent 6 }}
+      {{ .Values.extralabels | nindent 4 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -63,18 +60,18 @@ spec:
           {{- end }}
           envFrom:
            - configMapRef:
-               name: {{ include "helm-api-cadastro.fullname" . }}-configmap
+               name: {{ .Release.Name }}-configmap      
           env: 
-           - name: MONGO_USERNAME
-             valueFrom:
-              secretKeyRef:
-               key: MONGO_INITDB_ROOT_USERNAME
-               name: {{ include "helm-api-cadastro.fullname" . }}-secret
-           - name: MONGO_PASSWORD      
-             valueFrom:
-              secretKeyRef:
-               key: MONGO_INITDB_ROOT_PASSWORD
-               name: {{ include "helm-api-cadastro.fullname" . }}-secret
+            - name: MONGO_USERNAME
+              valueFrom:
+               secretKeyRef:
+                key: {{ .Values.secret.usernameKey }}
+                name: {{ default (printf "%s-secret" .Release.Name) .Values.secret.existingSecret }}
+            - name: MONGO_PASSWORD      
+              valueFrom:
+               secretKeyRef:
+                key: {{ .Values.secret.passwordKey }}
+                name: {{ default (printf "%s-secret" .Release.Name) .Values.secret.existingSecret }}
           {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}

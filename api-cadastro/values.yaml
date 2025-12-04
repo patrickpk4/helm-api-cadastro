@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Criar extra labels
+extralabels: ""
+
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 
@@ -193,13 +196,8 @@ podAntiAffinity:
            values:
            - cadastro-deployment
         topologyKey: kubernetes.io/hostname   
-# chart usa este namespace caso nao habilite o namespace abaixo.                
-namespacedef: default
 
-# namespace usado para organizar e facilitar a manutencao dos deployments. 
-namespace:
- enabled: false
- name: api-app
+
 
 # variaveis do configmap
 envfrom:
@@ -208,10 +206,16 @@ envfrom:
   database: "admin"
 
 # variaveis do secret 
-secret: 
-  user: mongouser
-  password: mongopwd  
-  type: Opaque
+secret:
+   create: true             # se true - cria o Secret
+   existingSecret: ""   # se setado - usa Secret existente e ignora create
+   usernameKey: Mongo__User   # chave dentro do Secret
+   passwordKey: Mongo__Password
+   username: mongouser        # usado somente quando create=true
+   password: mongopwd
+
+
+
 
 # adicionar valores referente a politica de redes (networkpolicy).
 netpolicy:
@@ -253,3 +257,46 @@ role:
   # habilitar rolebinding
 rolebinding:
  enabled: true
+
+#  Habilita a dependência do MongoDB
+mongodb:
+  enabled: true
+  
+  
+  #  Configuração de Rede
+  service:
+    type: ClusterIP
+    port: 27017 
+  
+  # diretorio para armazanar volumes 
+  volumeMounts: 
+   - name: mongodb-data
+     mountPath: /data/db  
+     readOnly: false
+  # especificacoes do volume 
+  volumeclaimtemplates:
+   - metadata:
+       name: mongodb-data
+     spec: 
+       accessModes: ["ReadWriteOnce"]    
+       storageClassName: mongodb-nfs  
+       resources:
+         requests:
+           storage: 1Gi
+# especificacoes da auto escala 
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80           
+
+# habilitar rolebinding
+  rolebinding:
+    enabled: true  
+
+  role:
+    enabled: true  
+
+  networkpolicy:
+    enabled: true  
