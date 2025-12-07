@@ -123,6 +123,7 @@ resources:
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+   
    limits:
      cpu: 100m
      memory: 128Mi
@@ -250,9 +251,9 @@ role:
     resources: ["secrets"]
     verbs: ["get"]
     resourceNames: ["catalogo-secret"]
-  #- apiGroups: ["apps"]
-  #  resources: ["deployments"]
-  #  verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
 
   # habilitar rolebinding
 rolebinding:
@@ -262,6 +263,20 @@ rolebinding:
 mongodb:
   enabled: true
   
+  # Aumentando para  réplicas 
+  replicaCount: 1
+  
+  # ********************************************************
+  # ADICIONE ESTA SEÇÃO PARA CORRIGIR O HPA DO MONGODB:
+  resources: 
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m     # O HPA precisa deste valor para calcular o uso.
+      memory: 256Mi # O HPA precisa deste valor para calcular o uso.
+  # ********************************************************
+
   
   #  Configuração de Rede
   service:
@@ -289,7 +304,7 @@ mongodb:
     minReplicas: 1
     maxReplicas: 10
     targetCPUUtilizationPercentage: 80
-    targetMemoryUtilizationPercentage: 80           
+    targetMemoryUtilizationPercentage: 80          
 
 # habilitar rolebinding
   rolebinding:
