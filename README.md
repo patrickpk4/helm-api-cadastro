@@ -1,28 +1,36 @@
+# -- Aplicação Cadastro de Produto
 
+## Kubernetes • Helm Chart • MongoDB (Dependência) • Ingress • RBAC • NetworkPolicy • Monitoramento • Grafana • Prometheus • .NET
 
-### Kubernetes • Helm Chart • Dependência MongoDB • Ingress • RBAC • NetworkPolicy • .NET API
-
-Este repositório contém o **Helm Chart da API de Cadastro**, que agora
-utiliza o **MongoDB como dependência via Helm**, hospedado em outro
-repositório.
+Este repositório contém o **Helm Chart da API de Cadastro**, totalmente
+integrado com **MongoDB via dependência Helm**, além de um **sistema
+completo de monitoramento com Prometheus e Grafana**, tanto da **API**
+quanto do **Banco de Dados MongoDB**.
 
 ------------------------------------------------------------------------
 
-##  Visão Geral
+##  Visão Geral do Projeto
 
-Este projeto demonstra:
+Este projeto demonstra uma aplicação Kubernetes realista utilizando:
 
--   Deploy da API de Cadastro escrita em **.NET**
--   Gerenciamento via **Helm Chart**
--   Conexão com **MongoDB via dependência Helm**
--   Suporte a:
-    -   **Ingress**
-    -   **RBAC**
-    -   **Secrets**
-    -   **ConfigMaps**
-    -   **NetworkPolicy**
-    -   **HPA**
-    -   **Valores customizáveis via `values.yaml`**
+-   API escrita em **.NET**
+-   Deploy via **Helm Chart**
+-   **MongoDB** como dependência externa
+-   Observabilidade completa com:
+    -   **Prometheus**
+    -   **Grafana**
+    -   **Dashboards customizados**
+    -   **Métricas de aplicação + métricas de banco + métricas de
+        Kubernetes**
+-   Recursos Kubernetes:
+    -   Ingress
+    -   RBAC
+    -   Secrets
+    -   ConfigMaps
+    -   NetworkPolicy
+    -   HPA
+    -   Persistência (PV/PVC)
+    -   Arquitetura configurável via `values.yaml`
 
 ------------------------------------------------------------------------
 
@@ -38,20 +46,21 @@ Este projeto demonstra:
 
 ------------------------------------------------------------------------
 
-##  Dependência -- MongoDB
+##  Dependência --- MongoDB via Helm
 
-O MongoDB agora é instalado a partir deste repositório:
+A API utiliza o MongoDB como dependência, instalado a partir deste
+repositório:
 
-https://github.com/patrickpk4/mongodb
+🔗 **https://github.com/patrickpk4/mongodb**
 
-O Chart da API carrega o MongoDB automaticamente se você habilitar:
+### Habilitação da dependência
 
 ``` yaml
 mongodb:
   enabled: true
 ```
 
-Dependência declarada no `Chart.yaml`:
+### Declaração no `Chart.yaml`
 
 ``` yaml
 dependencies:
@@ -60,7 +69,7 @@ dependencies:
     repository: "https://patrickpk4.github.io/mongodb/"
 ```
 
-Atualizar dependências:
+### Atualizar dependências:
 
 ``` bash
 helm dependency update ./api-cadastro/
@@ -70,7 +79,7 @@ helm dependency update ./api-cadastro/
 
 ##  Uso de Secrets
 
-Você pode usar um secret existente:
+Você pode reaproveitar um Secret existente:
 
 ``` yaml
 existingSecret:
@@ -78,7 +87,7 @@ existingSecret:
   name: meu-secret-existente
 ```
 
-Ou deixar o subchart do MongoDB criar seu próprio secret.
+Ou permitir que o subchart do MongoDB crie seu próprio Secret.
 
 ------------------------------------------------------------------------
 
@@ -128,44 +137,104 @@ existingSecret:
 
 ------------------------------------------------------------------------
 
-##  Instalação
-
-``` bash
-helm install api-cadastro ./api-cadastro/
-```
-
-Atualizar:
-
-``` bash
-helm upgrade api-cadastro ./api-cadastro/
-```
-
-Remover:
-
-``` bash
-helm uninstall api-cadastro
-```
-
-------------------------------------------------------------------------
-
 ##  Ingress
 
-    http://api-cadastro.local/swagger
+O serviço pode ser exposto via hostname:
 
-Adicionar no `/etc/hosts`:
+    http://cadastro.local/swagger
+
+Necessário adicionar ao hosts:
 
     127.0.0.1 api-cadastro.local
 
 ------------------------------------------------------------------------
 
-##  Troubleshooting
+#  Monitoramento da API --- Prometheus + Grafana
 
-``` bash
-kubectl logs -l app=api-cadastro
-kubectl get events --sort-by='.lastTimestamp'
-```
+O projeto possui um dashboard completo para acompanhar o desempenho da
+API:
+
+-   Latência (P95)
+-   Requisições por segundo
+-   Requisições ativas
+-   Uso de CPU (% dos limites)
+-   Uso de memória
+-   Taxa de erros 4xx e 5xx
+-   Métricas avançadas do .NET (GC Generation 2 etc.)
 
 ------------------------------------------------------------------------
+
+#  Monitoramento do Banco de Dados MongoDB --- Prometheus + Grafana
+
+Além da API, foi implementado um dashboard completo para o MongoDB,
+incluindo:
+
+------------------------------------------------------------------------
+
+##  **1. Operações (Leituras / Escritas / Comandos)**
+
+Métricas da família `mongodb_ss_opcounters`:
+
+    rate(mongodb_ss_opcounters{legacy_op_type="query"}[5m])
+    rate(mongodb_ss_opcounters{legacy_op_type="insert"}[5m])
+    rate(mongodb_ss_opcounters{legacy_op_type="command"}[5m])
+
+------------------------------------------------------------------------
+
+##  **2. Conexões Ativas do MongoDB**
+
+    mongodb_ss_connections
+
+------------------------------------------------------------------------
+
+##  **3. Tráfego de Rede**
+
+    rate(mongodb_ss_network_bytesIn[5m])
+    rate(mongodb_ss_network_bytesOut[5m])
+
+------------------------------------------------------------------------
+
+##  **4. Uso de CPU do MongoDB (% do limite)**
+
+    sum(rate(container_cpu_usage_seconds_total{container="mongodb"}[3m]))
+    /
+    sum(kube_pod_container_resource_limits{container="mongodb", resource="cpu"}) * 100
+
+------------------------------------------------------------------------
+
+##  **5. IO de Disco (Leituras/Escritas)**
+
+    rate(mongodb_sys_disks_sda_reads[5m])
+    rate(mongodb_sys_disks_sda_writes[5m])
+
+------------------------------------------------------------------------
+
+## 🧩 **6. Consumo de Memória (% do limite)**
+
+    sum(container_memory_working_set_bytes{container="mongodb"})
+    /
+    sum(kube_pod_container_resource_limits{resource="memory", container="mongodb"}) * 100
+
+------------------------------------------------------------------------
+
+##  **7. Uptime**
+
+    mongodb_ss_uptimeEstimate
+
+------------------------------------------------------------------------
+
+## **8. Saúde do ReplicaSet**
+
+    mongodb_rs_members_health
+
+------------------------------------------------------------------------
+
+##  **9. Réplicas do HPA (se habilitado)**
+
+    kube_horizontalpodautoscaler_status_current_replicas{horizontalpodautoscaler="mongodb-hpa"}
+
+------------------------------------------------------------------------
+
 
 ##  Autor
 
